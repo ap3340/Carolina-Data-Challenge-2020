@@ -1,0 +1,139 @@
+---
+title: "CDC"
+author: "Antonio Pano Flores"
+date: "10/3/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=F}
+options(scipen=999)
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rvest)
+library(maps)
+library(caTools)
+library(ROCR)
+library(stringr)
+```
+
+First, we will import the data. 
+```{r}
+NFL2013<- read.csv('https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/CumulativeStats/nfl2013stats.csv')
+```
+
+Here, we will get rid of the duplicates by keeping only one side of the ties (one game only) and by sub-setting the winners out and only keeping the winners. 
+```{r}
+NFL2013.W <- NFL2013 %>%
+  filter(ScoreOff >= ScoreDef)
+NFL2013.F <- NFL2013.W[-c(168),]
+```
+
+At this point, we want to select all the Denver Broncos and Seattle Seahawk games and find out if the 2014 Superbowl was a particularly high scoring game for the Seahawks!
+
+We will do this by conducting a hypothesis test
+```{r}
+Broncos <- filter(NFL2013.F, TeamName == "Denver Broncos")
+Seahawks <- filter(NFL2013.F, TeamName == "Seattle Seahawks")
+
+
+Broncos$TotalScore <- Broncos$ScoreOff + Broncos$ScoreDef
+Seahawks$TotalScore <- Seahawks$ScoreOff + Seahawks$ScoreDef
+BroncosMean <- mean(Broncos$TotalScore)
+SeahawksMean <- mean(Seahawks$TotalScore)
+
+SB2014Score <- 43 + 8
+
+t <- (SB2014Score - SeahawksMean) / (sd(Seahawks$TotalScore) / sqrt(nrow(Seahawks)))
+p_value = pt(t,nrow(Seahawks)-1) # deg. of freedom adjustment.
+print(p_value)
+```
+With a p-value of roughly .99 and a significance level of .05,
+we fail to reject the null hypothesis: .99 > .05.
+
+We conclude that for the Seahawks specifically, the 2014 SuperBowl was played extremely well as we conclude that the game for them ended in a total score that they have been used to based off the regular season. 
+
+<> 
+
+
+Next we will present boxplots that depict the information for each Team. In this case, the original data-set will be used in order to account for all the losses as well. In the end, we will have displayed boxplots for each team and their respective scores in the 2013 regular season. 
+```{r}
+
+ggplot(NFL2013, aes(x=TeamName, y=ScoreOff, fill = TeamName)) + 
+ geom_boxplot() +
+ coord_flip() + 
+ theme(legend.position = "none") + labs(y= "2013 Score Data", x= "Teams" )
+```
+
+
+
+
+<>
+
+A neat thing to determine is to see if we can determine the score of the winner through other variables.
+```{r}
+Model <- lm(ScoreOff ~ RushAttOff + PassAttOff + ScoreDef, data = NFL2013.F)
+summary(Model)
+
+
+plot(Model, 1:2)
+```
+From our Multiple Linear Regression, we can see that the winning team's Rush attempts and the losing team's final score contribute by 21% to the variation in winning team's score. The Pass attempts have a large p value and thus, don't contribute much to the overall model. 
+
+The model is portrayed by:
+12.85764 + 0.21975(x1) + 0.02367(x2) + 0.48329(x3)
+
+Where x1:Amount of Rush Attempts
+      x2:Amount of Passing Attempts
+      x3:Opponent Score
+
+With our first graph, we hope to see a random scattering of points and that is exactly what we see. There seems to be the same variability (constant variance) throughout all the different values of x. 
+
+From our Normal Q-Q Plot, we are able to interpret that the Score of the winning team based off the three chosen variables is heavily right skewed.
+
+
+<>
+
+
+
+```{r}
+NFLAllYears<- read.csv('Regular.csv')
+```
+
+```{r}
+NFLAllYears <- na.omit(NFLAllYears)
+NFLAllYears$Visitor.Score <- as.numeric(NFLAllYears$Visitor.Score)
+NFLAllYears$Home.Score <- as.numeric(NFLAllYears$Home.Score)
+
+
+NFL <- NFLAllYears %>%
+  mutate(Total.Score = Visitor.Score + Home.Score, Year = str_sub(Date, start= -4)) %>%
+  select(-c(Date)) %>%
+  na.omit()
+
+NFL$Year <- as.numeric(NFL$Year)
+
+
+plottable <- aggregate(Total.Score ~ Year, NFL, mean)
+```
+
+Now that we have the data how we want it, we need to get the average for total score for all years. 
+
+```{r}
+ggplot(plottable, aes(x=Year, y=Total.Score, colour = Year)) + 
+ geom_bar(stat = 'identity') + 
+  scale_colour_gradientn(colours=rainbow(2)) + theme_minimal() + theme(legend.position = "none") + labs(x= "Year", y= "Year Score Averages" )
+
+```
+
+
+
+Although there hasn't been a steady increase in the average total sum score of the football games, in the past few years, that number was challenging records set in the previous century and ultimately, broke that record recently. 
+
+
+
+
+
+
+
