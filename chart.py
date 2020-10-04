@@ -2,10 +2,14 @@ import pandas as pd
 from typing import Dict, List
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 
 dataframe_list = []
 home_win_list = []
 visitor_win_list = []
+
+#contains difference in win loss percentages over years
+diff_dict: Dict[str, int] = {}
 
 # this contains all teams and their home win percentages over the years
 x_dict: Dict[str, List] = {}
@@ -23,7 +27,32 @@ URL_list: List[str] = ['https://raw.githubusercontent.com/Carolina-Data-Challeng
 'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1985lines.csv',
 'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1986lines.csv',
 'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1987lines.csv',
-'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1988lines.csv'
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1988lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1989lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1990lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1991lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1992lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1993lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1994lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1995lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1996lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1997lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1998lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1999lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2000lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2001lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2002lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2003lines.csv', #from here i just modified links by changing year so if it fails replace links after this
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2004lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2005lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2006lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2007lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2008lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2009lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2010lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2011lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2012lines.csv',
+'https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl2013lines.csv'
 ]
 
 # dfe = pd.read_csv('https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1983lines.csv')
@@ -32,7 +61,6 @@ URL_list: List[str] = ['https://raw.githubusercontent.com/Carolina-Data-Challeng
 # df2 = pd.read_csv('https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1980lines.csv')
 # df3 = pd.read_csv('https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1981lines.csv')
 # df4 = pd.read_csv('https://raw.githubusercontent.com/Carolina-Data-Challenge/datasets/main/FootballDatasets/NFL/RegSeason/nfl1982lines.csv')
-
 possible_teams: List[str] = []
 
 for url in URL_list:
@@ -49,7 +77,6 @@ for team in possible_teams:
     if i == len(URL_list):
         duplicate_teams.append(team)
 
-
 teams: List[str] = []
 
 for team in duplicate_teams:
@@ -59,7 +86,10 @@ for team in duplicate_teams:
 for team in teams:
     x_dict[team] = []
     y_dict[team] = []
-print(teams)
+
+for team in teams:
+    diff_dict[team] = []
+
 
 def win_percent_calculator(df) -> Dict[str, int]:
     """Takes a dataframe and computes win percentage for home and away teams."""
@@ -85,8 +115,6 @@ def win_percent_calculator(df) -> Dict[str, int]:
 
             elif df.iloc[i][2] - df.iloc[i][4] < 0:
                 home_wins[home_team] += 1
-        #else:
-        #    print("tie")
 
     # this finds the total games played per team and puts it in a dictionary
     # this is here as a safety in case not all teams play the same number of games
@@ -107,14 +135,6 @@ def win_percent_calculator(df) -> Dict[str, int]:
             visitor_winpercentage[key] = visitor_wins[key] / (total_games[key])
     return (home_winpercentage, visitor_winpercentage)
 
-# a = win_percent_calculator(dfe)
-
-
-# for team in teams:
-#     p = a[0][team] + a[1][team]
-#     print(p)
-#print(a[1]['Oakland Raiders'])
-
 
 def run():
     for dataframe in dataframe_list:
@@ -122,20 +142,82 @@ def run():
         for team in teams:
             x_dict[team].append(a[0][team])
             y_dict[team].append(a[1][team])
+
+
 run()
+
 
 def graph_team(team: str) -> None:
     # these are the y values
     home = x_dict[team]
     away = y_dict[team]
-    x = np.arange(0,len(home))
-    print(x)
+    x = np.arange(0, len(home))
     fig = plt.figure()
-    ax1 = fig.add_subplot(111)
+    # fig, ((ax1, ax2), ax3) = plt.subplots(2, 1)
 
-    ax1.scatter(x, home, s=10, c='b', marker="s", label='home win percentage')
-    ax1.scatter(x, away, s=10, c='r', marker="o", label='away win percentage')
-    plt.legend(loc='upper left')
+    # graphs home/away line plot
+    ax1 = plt.subplot(212)
+    ax1.plot(x, away, '-o', color='orange')
+    ax1.plot(x, home, '-o', color='blue')
+    # ax1.xlabel('comparison of the percentages of home vs away')
+    # graphs home bar/line
+    ax2 = plt.subplot(221)
+    ax2.bar(x, home, color='g', width=0.35, label='home win percentage')
+    ax2.plot(x, home, '-o', color='blue')
+    # ax2.ylabel('Away win %')
+    plt.legend(loc='upper left', bbox_to_anchor=(0, 0))
+
+    # graphs away bar/line plot
+    ax3 = plt.subplot(222)
+    ax3.bar(x, away, color='r', width=0.35, label='away win percentage')
+    ax3.plot(x, away, '-o', color='orange')
+    # ax3.ylabel('Home win %')
+
+    # graphs home/away bars
+    # ax4.bar(x + 0.35, home, color = 'g', width = 0.35, label='home win percentage')
+    # ax4.bar(x, away, color='r', width=0.35, label='away win percentage')
+    fig.suptitle(team)
+    plt.legend(loc='upper left', bbox_to_anchor=(0, 0))
+    # plt.title('home win percentage vs away win percentage')
     plt.show()
 
-graph_team('New York Giants')
+
+def home_win_percent_all():
+    for team in x_dict:
+        for i in range(0, len(x_dict[team])):
+            diff: float = x_dict[team][i] - y_dict[team][i]
+            diff_dict[team].append(diff)
+    return diff_dict
+
+
+home_win_percent_all()
+
+
+def plot_team_diff(team):
+    diff_data = diff_dict[team]
+    x = np.arange(0, len(diff_data))
+    y = []
+    for i in range(0, len(diff_data)):
+        y.append(0)
+    y = np.array(y)
+    fig = plt.figure()
+    fig.suptitle('home win % minus away win percent.')
+    ax1 = fig.add_subplot(111)
+    ax1.bar(x, diff_data, color='g', width=0.35, label='home win percentage')
+    ax1.plot(x, y)
+    plt.title(team)
+    plt.show()
+
+
+if __name__ == '__main__':
+    good: List[str] = []  # ['Green Bay Packers','Houston Oilers','Miami Dolphins']
+
+    num: int = 0
+    while num != 3:
+        index: int = random.randint(0, len(teams))
+        good.append(teams[index])
+        num += 1
+
+    for team in good:
+        plot_team_diff(team)
+        graph_team(team)
