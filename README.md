@@ -9,7 +9,7 @@ Specifically, to submit your project you will be required to complete the follow
 
 ---
 
-**Visualization: Please refer to slides #3,4,5,9,11,12,15,16,18,19,21,23 on "Football And The Home Advantage.pdf" **
+**Visualization: Please refer to slides #3,4,5,9,11,12,15,16,18,19,21,23 on "Football And The Home Advantage.pdf" **\
 **PASTE PUBLIC VIDEO LINK HERE: https://youtu.be/8SY304XFDkU **
 
 ---
